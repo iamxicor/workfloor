@@ -1,0 +1,20 @@
+{
+  "name": "workfloor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A pixel office where Claude Code agents work through your Notion task board: worktrees, checks, simulator QA, PRs, approvals from your phone and a release room.",
+  "scripts": {
+    "start": "node server.js",
+    "app": "bash scripts/build-app.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "author": "Himanshu Kushwah",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamxicor/workfloor.git"
+  },
+  "homepage": "https://github.com/iamxicor/workfloor"
+}

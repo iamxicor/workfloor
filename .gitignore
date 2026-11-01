@@ -1,0 +1,8 @@
+# Your own setup and everything Workfloor writes at runtime
+workfloor.config.json
+data/
+dist/
+node_modules/
+marketing/
+.DS_Store
+*.log

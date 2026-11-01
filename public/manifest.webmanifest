@@ -1,0 +1,3 @@
+{ "name": "Workfloor", "short_name": "Workfloor", "start_url": "/", "display": "standalone",
+  "background_color": "#12161c", "theme_color": "#14181f",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }] }

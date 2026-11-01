@@ -1,0 +1,92 @@
+{
+  "onboarded": false,
+  "port": 4747,
+  "name": "",
+  "company": "",
+  "me": "",
+  "branchPrefix": "",
+  "github": {
+    "owner": ""
+  },
+  "notion": {
+    "source": "connector",
+    "dataSourceId": "",
+    "userId": "",
+    "assigneeProp": "Assignee",
+    "props": {
+      "title": "Name",
+      "id": "ID",
+      "status": "Status",
+      "priority": "Priority",
+      "tags": "Tags",
+      "due": "Due",
+      "testingType": "",
+      "complexity": ""
+    },
+    "hideStatuses": [
+      "Done"
+    ]
+  },
+  "agent": {
+    "permissionMode": "auto",
+    "model": ""
+  },
+  "repos": {},
+  "workflow": [
+    {
+      "id": "setup",
+      "label": "Clock in",
+      "icon": "badge",
+      "kind": "builtin",
+      "hint": "Make a worktree on <you>/TASK-id/slug from main and link node_modules."
+    },
+    {
+      "id": "code",
+      "label": "Build",
+      "icon": "keyboard",
+      "kind": "agent",
+      "hint": "Read the Notion task, ask about gaps, implement it.",
+      "prompt": "Work on Notion task {taskId}: {url}\n\nRead the task, ask me about anything unclear, then implement it. Follow the repo's own conventions (CLAUDE.md, README, lint rules). Also:\n- Skip the branching step. You are already in a git worktree at {worktree} on branch {branch}{extraDirs}. Do not switch branches or make another worktree.\n- Stop before raising the PR. Workfloor has its own Checks and Raise PR steps.\n- Commit your work on this branch with clear messages when a piece is done.\nEnd with a short summary: what changed, what you verified, and anything that needs me."
+    },
+    {
+      "id": "checks",
+      "label": "Checks",
+      "icon": "flask",
+      "kind": "builtin",
+      "hint": "Types, lint and unit tests for the changed files, in the worktree."
+    },
+    {
+      "id": "review",
+      "label": "Self review",
+      "icon": "magnifier",
+      "kind": "agent",
+      "hint": "Code review of the branch diff before anyone else sees it.",
+      "prompt": "Review the changes on this branch against {base}: run the code-review skill on `git diff origin/{base}...HEAD` (plus any uncommitted changes) at medium effort. List the findings, most severe first, each with file:line and a one-line fix. Do not apply fixes yet; I will reply with which ones to fix."
+    },
+    {
+      "id": "simtest",
+      "label": "Sim test",
+      "icon": "phone",
+      "kind": "agent",
+      "repos": [],
+      "hint": "Drive the app on the iOS simulator and record evidence.",
+      "prompt": "Test Notion task {taskId} ({url}) on the iOS simulator. Plan a few test cases from the task, run them on the simulator, and capture a screenshot for each. The code is in this worktree ({worktree}, branch {branch}). Report every case as PASS or FAIL with what you saw on screen."
+    },
+    {
+      "id": "pr",
+      "label": "Raise PR",
+      "icon": "mailbox",
+      "kind": "agent",
+      "hint": "Push and open the PR, then link it on the Notion task.",
+      "prompt": "Raise the PR for Notion task {taskId} ({url}).\n- Base branch: {base} (already confirmed by me; do not ask again). Skip the local review, Workfloor already ran it.\n- Commit anything uncommitted that belongs to the task, push {branch}, then `gh pr create --base {base}`.\n- Title: \"{taskId}: <short summary>\". Body starts with: Notion: [{taskId}]({url}) \u2014 \"{title}\". Then ## Summary, ## Edge cases, ## Known gaps, ## Test plan. Put these Workfloor check results in the test plan:\n{checksSummary}\n- Then update the Notion task: move its status to the one your team uses for review, and add the PR link to the page body.\nPrint the PR URL as the last line."
+    },
+    {
+      "id": "ci",
+      "label": "CI & comments",
+      "icon": "signal",
+      "kind": "builtin",
+      "hint": "Watch CI checks and review comments on the PR.",
+      "agentPrompt": "Read the CI results and review comments on PR {prUrl} (`gh pr checks`, `gh pr view --comments`, and inline review comments via `gh api repos/{owner}/{repoName}/pulls/{prNumber}/comments`). Fix failing checks and address each review comment on this branch, commit, and push. Summarize what you changed per comment."
+    }
+  ]
+}

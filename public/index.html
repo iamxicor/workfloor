@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14181f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Workfloor">
+  <title>Workfloor</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Silkscreen&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="ceiling" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Workfloor home">
+      <span class="brand-mark" id="brandMark"></span>
+      <span class="brand-text">
+        <strong>Workfloor</strong>
+        <small id="floorLabel">Floor 1 · Engineering</small>
+      </span>
+    </a>
+    <div class="top-actions">
+      <span class="clock" id="clock">--:--</span>
+      <button class="btn ghost jump-btn" id="cmdBtn" title="Jump to a task or action (⌘K or /)">
+        <svg viewBox="0 0 24 24" class="ico"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <span class="lbl">Jump to…</span><kbd>⌘K</kbd>
+      </button>
+      <button class="btn ghost" id="syncBtn" title="Pull tasks from Notion">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12A8 8 0 0 1 18.3 7.1M18 3v4.5h-4.5M6 21v-4.5h4.5"/></svg>
+        <span class="lbl">Sync</span>
+      </button>
+      <button class="btn ghost" id="connectBtn" title="Open on your phone">
+        <svg viewBox="0 0 24 24" class="ico"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>
+        <span class="lbl">Phone</span>
+      </button>
+      <button class="btn ghost" id="devicesBtn" title="Device lab: simulators, emulators and connected phones">
+        <svg viewBox="0 0 24 24" class="ico"><rect x="2.5" y="4" width="12.5" height="10" rx="1.5"/><path d="M6 18h6M8.75 14v4"/><rect x="16.5" y="8" width="5" height="11.5" rx="1.2"/></svg>
+        <span class="lbl">Devices</span><span class="dev-count" id="devCount" hidden></span>
+      </button>
+      <button class="btn ghost" id="releaseBtn" title="Release room">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M5 15c-1.5 1.5-2 4-2 6 2 0 4.5-.5 6-2M9 15l-3-3 2.5-4.5C11 3.5 15.5 2 21 3c1 5.5-.5 10-4.5 12.5L12 18l-3-3zM14.5 9.5h.01"/></svg>
+        <span class="lbl" id="releaseLbl">Release</span>
+      </button>
+      <button class="btn ghost" id="standupBtn" title="Standup, checkout, check-in topics and new tasks">
+        <svg viewBox="0 0 24 24" class="ico"><circle cx="12" cy="13" r="4"/><path d="M12 3v3M4.2 6.2l2 2M19.8 6.2l-2 2M2 17h20M6 21h12"/></svg>
+        <span class="lbl">Daily</span>
+      </button>
+      <button class="btn ghost icon-only" id="settingsBtn" title="Sounds, alerts and autopilot">
+        <svg viewBox="0 0 24 24" class="ico"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+      </button>
+      <button class="btn ghost icon-only" id="themeBtn" title="Switch day / night shift">
+        <svg viewBox="0 0 24 24" class="ico"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <p class="greet" id="greet" hidden></p>
+    <section class="board-stats" id="stats" aria-label="Floor summary"></section>
+
+    <section class="moves-wrap" aria-label="Your moves">
+      <div class="section-head row">
+        <h2><span class="pix">YOUR MOVES</span> <span id="movesTitle">What needs you</span></h2>
+        <button type="button" class="ticker" id="ticker" title="What just happened on the floor"></button>
+      </div>
+      <div class="moves" id="moves"></div>
+    </section>
+
+    <section class="floor-wrap">
+      <div class="section-head">
+        <h2><span class="pix">THE FLOOR</span> Who's at a desk</h2>
+        <p class="muted" id="floorHint">Every task you've clocked in on gets a desk.</p>
+      </div>
+      <div class="floor" id="floor"></div>
+    </section>
+
+    <section class="board-wrap">
+      <div class="section-head row">
+        <h2><span class="pix">TASK BOARD</span> Assigned to you</h2>
+        <div class="board-actions">
+        <button class="btn primary" id="newTaskBtn" title="Create a task on Notion">＋ New task</button>
+        <label class="search">
+          <svg viewBox="0 0 24 24" class="ico"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+          <input id="search" type="search" placeholder="Find a task" autocomplete="off">
+        </label>
+        </div>
+      </div>
+      <nav class="room-tabs" id="roomTabs" role="tablist"></nav>
+      <div class="board" id="board"></div>
+      <p class="sync-note muted" id="syncNote"></p>
+    </section>
+  </main>
+
+  <div class="onboard" id="onboard" hidden></div>
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" aria-hidden="true"></aside>
+
+  <dialog id="connectDlg" class="dlg">
+    <form method="dialog" class="dlg-inner">
+      <h3><span class="pix">PAIR A PHONE</span></h3>
+      <p class="muted">Scan with your phone camera on the same Wi-Fi. It signs the phone in for a year. Then Share → Add to Home Screen.</p>
+      <div class="qr" id="qr"></div>
+      <div class="links" id="links"></div>
+      <div class="tunnel" id="tunnelBox"></div>
+      <div class="dlg-actions"><button class="btn">Done</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="meterDlg" class="dlg">
+    <form method="dialog" class="dlg-inner">
+      <h3><span class="pix">CLAUDE METER</span></h3>
+      <div id="meterBody" class="meter-body"></div>
+      <div class="dlg-actions"><button type="button" class="btn ghost" id="meterRefresh">Check now</button><button class="btn">Done</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="cmdDlg" class="dlg cmd" aria-label="Jump to">
+    <div class="cmd-inner">
+      <label class="cmd-search"><svg viewBox="0 0 24 24" class="ico"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+        <input id="cmdInput" type="search" placeholder="Find a task, or type an action: release, devices, new task…" autocomplete="off" spellcheck="false"></label>
+      <div class="cmd-list" id="cmdList" role="listbox"></div>
+      <div class="cmd-foot muted"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span><span><kbd>?</kbd> all shortcuts</span></div>
+    </div>
+  </dialog>
+
+  <dialog id="keysDlg" class="dlg">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">SHORTCUTS</span> Keyboard</h3><button class="btn small">Close</button></div>
+      <dl class="keys">
+        <dt><kbd>⌘K</kbd> <kbd>/</kbd></dt><dd>Jump to a task or action</dd>
+        <dt><kbd>M</kbd></dt><dd>Do your next move</dd>
+        <dt><kbd>N</kbd></dt><dd>New Notion task</dd>
+        <dt><kbd>D</kbd></dt><dd>Daily: standup and checkout</dd>
+        <dt><kbd>R</kbd></dt><dd>Release room</dd>
+        <dt><kbd>V</kbd></dt><dd>Devices</dd>
+        <dt><kbd>S</kbd></dt><dd>Sync with Notion</dd>
+        <dt><kbd>T</kbd></dt><dd>Day / night shift</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Close the task or dialog</dd>
+        <dt><kbd>?</kbd></dt><dd>This list</dd>
+      </dl>
+    </form>
+  </dialog>
+
+  <dialog id="devicesDlg" class="dlg wide">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">DEVICE LAB</span> Devices</h3>
+        <div class="lab-actions" id="labActions"></div><button class="btn small">Close</button></div>
+      <div class="lab" id="lab"><div class="lab-empty muted">Looking for devices…</div></div>
+    </form>
+  </dialog>
+
+  <dialog id="releaseDlg" class="dlg wide release">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">RELEASE ROOM</span> <span id="relTitle"></span></h3><button class="btn small">Close</button></div>
+      <div class="rel-layout">
+        <div id="relBody" class="rel-body"></div>
+        <div class="term-wrap" id="relTerm" hidden>
+          <div class="term-head" id="relTermHead"></div>
+          <div class="term-prompt" id="relPrompt" hidden></div>
+          <pre class="term" id="relOut"></pre>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDlg" class="dlg wide">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">SETTINGS</span> Sounds, alerts and autopilot</h3><button class="btn small">Done</button></div>
+      <div id="settingsBody" class="settings-body"></div>
+    </form>
+  </dialog>
+
+  <dialog id="standupDlg" class="dlg wide">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">DAILY</span></h3><button class="btn small">Close</button></div>
+      <nav class="daily-tabs" id="dailyTabs" role="tablist">
+        <button type="button" data-dtab="standup">☀ Standup</button>
+        <button type="button" data-dtab="checkout">👋 Checkout</button>
+        <button type="button" data-dtab="topics">💬 Check-in topics</button>
+        <button type="button" data-dtab="newtask">＋ New task</button>
+      </nav>
+      <div id="standupBody" class="standup-body"></div>
+    </form>
+  </dialog>
+
+  <dialog id="remoteDlg" class="dlg remote">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">REMOTE</span> <span id="remoteName"></span></h3><button class="btn small">Done</button></div>
+      <div class="remote-screen"><img id="remoteImg" alt="Live device screen" draggable="false"><span class="remote-busy" id="remoteBusy" hidden>sending…</span></div>
+      <div class="remote-keys">
+        <button type="button" class="btn small" data-rkey="home">Home</button>
+        <button type="button" class="btn small" data-rkey="back">Back</button>
+        <input id="remoteText" placeholder="Type into the focused field" autocomplete="off">
+        <button type="button" class="btn small primary" data-rkey="text">Type</button>
+      </div>
+      <p class="muted small">Tap to tap, drag to swipe. On an iPhone simulator the first tap takes a while as agent-device starts up.</p>
+    </form>
+  </dialog>
+
+  <dialog id="storageDlg" class="dlg wide">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">MAC STORAGE</span></h3><button class="btn small">Close</button></div>
+      <div id="storageBody" class="storage-body"></div>
+      <div class="dlg-actions">
+        <button type="button" class="btn ghost" id="storageScan">Scan again</button>
+        <button type="button" class="btn danger" id="storageClean" disabled>Clean</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="simDlg" class="dlg">
+    <form method="dialog" class="dlg-inner">
+      <h3><span class="pix">SIM TEST</span> <span id="simTask"></span></h3>
+      <p class="muted">The agent plans test cases from the task, drives the simulator, takes screenshots and writes a report you can open here.</p>
+      <div class="field">SIMULATOR<div class="sim-pick" id="simPick"></div></div>
+      <label class="field">WHAT TO FOCUS ON (OPTIONAL)<textarea id="simFocus" rows="2" placeholder="e.g. only the empty state; skip the baseline on main"></textarea></label>
+      <label class="check"><input type="checkbox" id="simNotion"> Also post the report on the Notion task</label>
+      <div class="dlg-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="ok" id="simGo">Start test</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="reportDlg" class="dlg wide">
+    <form method="dialog" class="dlg-inner">
+      <div class="report-head"><h3><span class="pix">QA REPORT</span></h3><button class="btn small">Close</button></div>
+      <div class="report-body msg agent" id="reportBody"></div>
+    </form>
+  </dialog>
+
+  <dialog id="clockDlg" class="dlg">
+    <form method="dialog" class="dlg-inner" id="clockForm">
+      <h3><span class="pix">CLOCK IN</span> <span id="clockTask"></span></h3>
+      <p class="muted">Makes a worktree on <code id="clockBranch"></code> from the base branch, then you can send the agent to work.</p>
+      <fieldset class="seg" id="repoSeg">
+        <legend>Repo</legend>
+        <label><input type="radio" name="repo" value="mobile" checked><span>📱 mobile</span></label>
+        <label><input type="radio" name="repo" value="web"><span>🖥 web</span></label>
+        <label><input type="radio" name="repo" value="both"><span>Both</span></label>
+      </fieldset>
+      <label class="field">Base branch <input name="base" value="main" autocomplete="off"></label>
+      <div class="field">HOW HARD IS IT<div class="sev" id="sevBox"></div></div>
+      <fieldset class="seg models" id="modelSeg">
+        <legend>Model</legend>
+        <label><input type="radio" name="model" value="haiku"><span>Haiku<small>quick fixes</small></span></label>
+        <label><input type="radio" name="model" value="sonnet" checked><span>Sonnet<small>most tasks</small></span></label>
+        <label><input type="radio" name="model" value="opus"><span>Opus<small>hard or risky</small></span></label>
+        <label><input type="radio" name="model" value="fable"><span>Fable<small>the gnarliest</small></span></label>
+      </fieldset>
+      <label class="check"><input type="checkbox" name="autostart" checked> Start the Build step right after</label>
+      <div class="dlg-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="ok">Clock in</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="prDlg" class="dlg">
+    <form method="dialog" class="dlg-inner">
+      <h3><span class="pix">RAISE PR</span></h3>
+      <p class="muted">The agent commits what's left, pushes, opens the PR with your check results in the test plan, and links it on Notion.</p>
+      <label class="field">Target branch <input name="base" value="main" autocomplete="off" id="prBase"></label>
+      <div class="dlg-actions">
+        <button class="btn ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="ok">Raise PR</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
