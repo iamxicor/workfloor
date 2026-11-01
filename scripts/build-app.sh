@@ -53,8 +53,10 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </dict>
 </plist>
 PLIST
-# The PATH you build with (nvm, bun, ...) so tasks find npx and friends when the app opens from Finder.
-plutil -insert WorkfloorPath -string "$PATH" "$APP/Contents/Info.plist"
+# Fallback tool folders for when the login shell can't be read. Only system-wide ones: anything under the
+# builder's home folder means nothing on another Mac (the app reads each user's own PATH at launch).
+SHARED_PATH=$(printf %s "$PATH" | tr ':' '\n' | grep -v "^$HOME" | awk '!seen[$0]++' | paste -sd: -)
+plutil -insert WorkfloorPath -string "$SHARED_PATH" "$APP/Contents/Info.plist"
 
 echo "› Signing (ad hoc, for this Mac)"
 codesign --force --sign - "$APP"
